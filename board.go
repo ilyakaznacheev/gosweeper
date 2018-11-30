@@ -13,6 +13,8 @@ const (
 var (
 	// ErrOutOfBoard coordinates are beyond the board boundary
 	ErrOutOfBoard = errors.New("point coordinates are beyond the board boundary")
+	// ErrTooMuchMines too much mines
+	ErrTooMuchMines = errors.New("too much mines")
 )
 
 // Coords is field coordinate set
@@ -39,8 +41,10 @@ type Board struct {
 // x, y - coordinates of starting point
 // mineNumber - number of mines
 func NewBoard(width, height, x, y, mineNumber uint) (*Board, error) {
-	if x > width || y > height {
+	if x > width-1 || y > height-1 {
 		return nil, ErrOutOfBoard
+	} else if mineNumber > width*height-1 {
+		return nil, ErrTooMuchMines
 	}
 	return &Board{
 		fields: generateFields(int(width), int(height), int(x), int(y), int(mineNumber)),
@@ -59,8 +63,8 @@ func generateFields(width, height, x, y, mineNumber int) [][]*Field {
 		yNext := rand.Intn(height)
 		if _, ok := points[Coords{xNext, yNext}]; !ok {
 			points[Coords{xNext, yNext}] = struct{}{}
+			num--
 		}
-		num--
 	}
 
 	delete(points, Coords{x, y})
@@ -82,7 +86,7 @@ func generateFields(width, height, x, y, mineNumber int) [][]*Field {
 
 // GetStatus returns field status - mine (-1) or mined neighbours count (0..9)
 func (b *Board) GetStatus(x, y uint) (int, error) {
-	if int(x) > b.width || int(y) > b.height {
+	if int(x) > b.width-1 || int(y) > b.height-1 {
 		return 0, ErrOutOfBoard
 	}
 	if b.fields[x][y].mine {
@@ -93,15 +97,15 @@ func (b *Board) GetStatus(x, y uint) (int, error) {
 
 func (b *Board) getNeighbourMCount(x, y int) int {
 	var count int
-	for xIdx := x - 1; xIdx < x+1; xIdx++ {
-		if xIdx < 0 || xIdx > b.width {
+	for xIdx := x - 1; xIdx <= x+1; xIdx++ {
+		if xIdx < 0 || xIdx > b.width-1 {
 			continue
 		}
-		for yIdx := y - 1; yIdx < y+1; yIdx++ {
-			if yIdx < 0 || yIdx > b.height || xIdx == x && yIdx == y {
+		for yIdx := y - 1; yIdx <= y+1; yIdx++ {
+			if yIdx < 0 || yIdx > b.height-1 || xIdx == x && yIdx == y {
 				continue
 			}
-			if b.fields[x][y].mine {
+			if b.fields[xIdx][yIdx].mine {
 				count++
 			}
 		}

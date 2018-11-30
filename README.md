@@ -3,5 +3,5 @@
 ## Roadmap
 
 - [X] core logic
+- [X] tests
 - [ ] GUI
-- [ ] tests
