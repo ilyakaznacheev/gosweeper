@@ -1,4 +1,4 @@
-package main
+package gosweeper
 
 import (
 	"errors"
@@ -40,7 +40,7 @@ type Board struct {
 // width, height - width and height of board
 // x, y - coordinates of starting point
 // mineNumber - number of mines
-func NewBoard(width, height, x, y, mineNumber uint) (*Board, error) {
+func NewBoard(width, height, x, y, mineNumber int) (*Board, error) {
 	if x > width-1 || y > height-1 {
 		return nil, ErrOutOfBoard
 	} else if mineNumber > width*height-1 {
@@ -85,7 +85,7 @@ func generateFields(width, height, x, y, mineNumber int) [][]*Field {
 }
 
 // GetStatus returns field status - mine (-1) or mined neighbours count (0..9)
-func (b *Board) GetStatus(x, y uint) (int, error) {
+func (b *Board) GetStatus(x, y int) (int, error) {
 	if int(x) > b.width-1 || int(y) > b.height-1 {
 		return 0, ErrOutOfBoard
 	}
